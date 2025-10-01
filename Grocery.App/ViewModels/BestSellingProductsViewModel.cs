@@ -1,17 +1,20 @@
 ﻿
+using System.Collections.ObjectModel;
 using Grocery.Core.Interfaces.Services;
 using Grocery.Core.Models;
-using System.Collections.ObjectModel;
+using Grocery.Core.Services;
 
 namespace Grocery.App.ViewModels
 {
     public partial class BestSellingProductsViewModel : BaseViewModel
     {
         private readonly IGroceryListItemsService _groceryListItemsService;
+        private readonly IBoughtProductsService _boughtProductsService;
         public ObservableCollection<BestSellingProducts> Products { get; set; } = [];
-        public BestSellingProductsViewModel(IGroceryListItemsService groceryListItemsService)
+        public BestSellingProductsViewModel(IGroceryListItemsService groceryListItemsService, IBoughtProductsService boughtProductsService,)
         {
             _groceryListItemsService = groceryListItemsService;
+            _boughtProductsService = boughtProductsService;
             Products = [];
             Load();
         }

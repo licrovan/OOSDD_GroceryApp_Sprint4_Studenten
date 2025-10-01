@@ -8,6 +8,7 @@ namespace Grocery.Core.Services
     {
         private readonly IGroceryListItemsRepository _groceriesRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IBoughtProductsService _boughtProductsService;
 
         public GroceryListItemsService(IGroceryListItemsRepository groceriesRepository, IProductRepository productRepository)
         {
@@ -51,7 +52,34 @@ namespace Grocery.Core.Services
 
         public List<BestSellingProducts> GetBestSellingProducts(int topX = 5)
         {
-            throw new NotImplementedException();
+            // list of bought products
+            List<BoughtProducts> boughtProducts = _boughtProductsService.GetAll();
+            // dictionary of product and number of times bought
+            Dictionary<Product, int> salleCounts = new();
+            foreach (BoughtProducts b in boughtProducts)
+            {
+                Product product = b.Product;
+                if (salleCounts.ContainsKey(product))
+                {
+                    salleCounts[product]++;
+                }
+                else
+                {
+                    salleCounts[product] = 1;
+                }
+            }
+
+            // sort dictionary by value and take topX keys
+            salleCounts = salleCounts.OrderByDescending(x => x.Value).Take(topX).ToDictionary(x => x.Key, x => x.Value);
+
+            List<BestSellingProducts> bestSellingProducts = new();
+            foreach (KeyValuePair<Product, int> kvp in salleCounts)
+            {
+                bestSellingProducts.Add(new BestSellingProducts(kvp.Key.Id, kvp.Key.Name, kvp.Key.Stock, kvp.Value, bestSellingProducts.Count));
+            }
+
+            return bestSellingProducts;
+
         }
 
         private void FillService(List<GroceryListItem> groceryListItems)
