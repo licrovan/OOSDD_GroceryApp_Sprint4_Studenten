@@ -22,5 +22,10 @@ namespace Grocery.Core.Services
         {
             throw new NotImplementedException();
         }
+
+        public List<BoughtProducts> GetAll()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
