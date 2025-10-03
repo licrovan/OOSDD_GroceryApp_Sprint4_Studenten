@@ -57,21 +57,29 @@ namespace Grocery.Core.Services
             // dictionary of product and number of times bought
             Dictionary<int, int> saleCounts = new();
 
-            foreach (GroceryListItem item in boughtItems) { 
-            
+            foreach (GroceryListItem item in boughtItems)
+            {
+
                 int id = item.ProductId;
                 int sales = item.Amount;
 
                 if (saleCounts.ContainsKey(id))
                 {
                     saleCounts[id] = saleCounts[id] + sales;
-                } else
+                }
+                else
                 {
                     saleCounts.Add(id, sales);
                 }
 
             }
 
+            return sortPickSales(topX, ref saleCounts);
+
+        }
+
+        private List<BestSellingProducts> sortPickSales(int topX, ref Dictionary<int, int> saleCounts)
+        {
             saleCounts = saleCounts.OrderByDescending(x => x.Value).Take(topX).ToDictionary(x => x.Key, x => x.Value);
 
             // create list of best selling products to return
@@ -88,8 +96,6 @@ namespace Grocery.Core.Services
             }
 
             return bestSelling;
-
-
         }
 
         private void FillService(List<GroceryListItem> groceryListItems)
