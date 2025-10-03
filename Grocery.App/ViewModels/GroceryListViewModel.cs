@@ -10,11 +10,15 @@ namespace Grocery.App.ViewModels
     {
         public ObservableCollection<GroceryList> GroceryLists { get; set; }
         private readonly IGroceryListService _groceryListService;
+        private readonly GlobalViewModel _globalViewModel;
 
-        public GroceryListViewModel(IGroceryListService groceryListService) 
+        public Client? Client => _globalViewModel.Client;
+
+        public GroceryListViewModel(IGroceryListService groceryListService, GlobalViewModel globalViewModel) 
         {
             Title = "Boodschappenlijst";
             _groceryListService = groceryListService;
+            _globalViewModel = globalViewModel;
             GroceryLists = new(_groceryListService.GetAll());
         }
 
@@ -23,6 +27,15 @@ namespace Grocery.App.ViewModels
         {
             Dictionary<string, object> paramater = new() { { nameof(GroceryList), groceryList } };
             await Shell.Current.GoToAsync($"{nameof(Views.GroceryListItemsView)}?Titel={groceryList.Name}", true, paramater);
+        }
+
+        [RelayCommand]
+        public async Task ShowBoughtProducts()
+        {
+            if (_globalViewModel.Client?.Role == Core.Models.Role.Admin)
+            {
+                await Shell.Current.GoToAsync(nameof(Views.BoughtProductsView));
+            }
         }
         public override void OnAppearing()
         {
