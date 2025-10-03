@@ -11,7 +11,7 @@ namespace Grocery.App.ViewModels
         private readonly IGroceryListItemsService _groceryListItemsService;
         private readonly IBoughtProductsService _boughtProductsService;
         public ObservableCollection<BestSellingProducts> Products { get; set; } = [];
-        public BestSellingProductsViewModel(IGroceryListItemsService groceryListItemsService, IBoughtProductsService boughtProductsService,)
+        public BestSellingProductsViewModel(IGroceryListItemsService groceryListItemsService, IBoughtProductsService boughtProductsService)
         {
             _groceryListItemsService = groceryListItemsService;
             _boughtProductsService = boughtProductsService;

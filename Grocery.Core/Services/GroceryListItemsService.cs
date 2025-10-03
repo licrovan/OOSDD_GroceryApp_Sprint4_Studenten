@@ -8,7 +8,6 @@ namespace Grocery.Core.Services
     {
         private readonly IGroceryListItemsRepository _groceriesRepository;
         private readonly IProductRepository _productRepository;
-        private readonly IBoughtProductsService _boughtProductsService;
 
         public GroceryListItemsService(IGroceryListItemsRepository groceriesRepository, IProductRepository productRepository)
         {
@@ -52,33 +51,44 @@ namespace Grocery.Core.Services
 
         public List<BestSellingProducts> GetBestSellingProducts(int topX = 5)
         {
-            // list of bought products
-            List<BoughtProducts> boughtProducts = _boughtProductsService.GetAll();
+            // list of bought products from grocerylistimtesrepo
+            List<GroceryListItem> boughtItems = _groceriesRepository.GetAll();
+
             // dictionary of product and number of times bought
-            Dictionary<Product, int> salleCounts = new();
-            foreach (BoughtProducts b in boughtProducts)
-            {
-                Product product = b.Product;
-                if (salleCounts.ContainsKey(product))
+            Dictionary<int, int> saleCounts = new();
+
+            foreach (GroceryListItem item in boughtItems) { 
+            
+                int id = item.ProductId;
+                int sales = item.Amount;
+
+                if (saleCounts.ContainsKey(id))
                 {
-                    salleCounts[product]++;
-                }
-                else
+                    saleCounts[id] = saleCounts[id] + sales;
+                } else
                 {
-                    salleCounts[product] = 1;
+                    saleCounts.Add(id, sales);
                 }
+
             }
 
-            // sort dictionary by value and take topX keys
-            salleCounts = salleCounts.OrderByDescending(x => x.Value).Take(topX).ToDictionary(x => x.Key, x => x.Value);
+            saleCounts = saleCounts.OrderByDescending(x => x.Value).Take(topX).ToDictionary(x => x.Key, x => x.Value);
 
-            List<BestSellingProducts> bestSellingProducts = new();
-            foreach (KeyValuePair<Product, int> kvp in salleCounts)
+            // create list of best selling products to return
+            List<BestSellingProducts> bestSelling = new();
+
+            foreach (KeyValuePair<int, int> kvp in saleCounts)
             {
-                bestSellingProducts.Add(new BestSellingProducts(kvp.Key.Id, kvp.Key.Name, kvp.Key.Stock, kvp.Value, bestSellingProducts.Count));
+                // find product asocciated with product id (key)
+                Product? product = _productRepository.Get(kvp.Key);
+
+                BestSellingProducts bestProduct = new(kvp.Key, product.Name, product.Stock, kvp.Value, bestSelling.Count + 1);
+
+                bestSelling.Add(bestProduct);
             }
 
-            return bestSellingProducts;
+            return bestSelling;
+
 
         }
 
